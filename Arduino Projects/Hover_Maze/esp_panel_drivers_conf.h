@@ -1,0 +1,112 @@
+/*
+ * SPDX-FileCopyrightText: 2023-2025 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
+ * @file  esp_panel_drivers_conf.h
+ * @brief Configuration file for ESP Panel Drivers
+ */
+
+#pragma once
+
+// *INDENT-OFF*
+
+/////////////////////////////////////////////////// Bus Configurations //////////////////////////////////////////////////
+#define ESP_PANEL_DRIVERS_BUS_USE_ALL                   (1)
+#if !ESP_PANEL_DRIVERS_BUS_USE_ALL
+    #define ESP_PANEL_DRIVERS_BUS_USE_SPI               (0)
+    #define ESP_PANEL_DRIVERS_BUS_USE_QSPI              (0)
+    #define ESP_PANEL_DRIVERS_BUS_USE_RGB               (0)
+    #define ESP_PANEL_DRIVERS_BUS_USE_I2C               (0)
+    #define ESP_PANEL_DRIVERS_BUS_USE_MIPI_DSI          (1)
+#endif // ESP_PANEL_DRIVERS_BUS_USE_ALL
+
+#define ESP_PANEL_DRIVERS_BUS_COMPILE_UNUSED_DRIVERS    (1)
+
+/////////////////////////////////////////////////// LCD Configurations ///////////////////////////////////////////////////
+#define ESP_PANEL_DRIVERS_LCD_USE_ALL                   (0)
+#if !ESP_PANEL_DRIVERS_LCD_USE_ALL
+    #define ESP_PANEL_DRIVERS_LCD_USE_AXS15231B         (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_EK9716B           (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_EK79007           (1)
+    #define ESP_PANEL_DRIVERS_LCD_USE_GC9A01            (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_GC9B71            (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_GC9503            (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_HX8399            (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_ILI9341           (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_ILI9881C          (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_JD9165            (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_JD9365            (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_NV3022B           (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_SH8601            (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_SPD2010           (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_ST7262            (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_ST7701            (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_ST7703            (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_ST7789            (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_ST7796            (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_ST77903           (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_ST77916           (0)
+    #define ESP_PANEL_DRIVERS_LCD_USE_ST77922           (0)
+#endif // ESP_PANEL_DRIVERS_LCD_USE_ALL
+
+#define ESP_PANEL_DRIVERS_LCD_COMPILE_UNUSED_DRIVERS    (1)
+
+/////////////////////////////////////////////////// Touch Configurations /////////////////////////////////////////////////
+#define ESP_PANEL_DRIVERS_TOUCH_MAX_POINTS              (10)    // Maximum number of touch points supported
+#define ESP_PANEL_DRIVERS_TOUCH_MAX_BUTTONS             (5)     // Maximum number of touch buttons supported
+
+#define ESP_PANEL_DRIVERS_TOUCH_USE_ALL                 (0)
+#if !ESP_PANEL_DRIVERS_TOUCH_USE_ALL
+    #define ESP_PANEL_DRIVERS_TOUCH_USE_AXS15231B       (0)
+    #define ESP_PANEL_DRIVERS_TOUCH_USE_CHSC6540        (0)
+    #define ESP_PANEL_DRIVERS_TOUCH_USE_CST816S         (0)
+    #define ESP_PANEL_DRIVERS_TOUCH_USE_CST820          (0)
+    #define ESP_PANEL_DRIVERS_TOUCH_USE_FT5x06          (0)
+    #define ESP_PANEL_DRIVERS_TOUCH_USE_GT911           (1)
+    #define ESP_PANEL_DRIVERS_TOUCH_USE_GT1151          (0)
+    #define ESP_PANEL_DRIVERS_TOUCH_USE_SPD2010         (0)
+    #define ESP_PANEL_DRIVERS_TOUCH_USE_ST1633          (0)
+    #define ESP_PANEL_DRIVERS_TOUCH_USE_ST7123          (0)
+    #define ESP_PANEL_DRIVERS_TOUCH_USE_STMPE610        (0)
+    #define ESP_PANEL_DRIVERS_TOUCH_USE_TT21100         (0)
+    #define ESP_PANEL_DRIVERS_TOUCH_USE_XPT2046         (0)
+#endif // ESP_PANEL_DRIVERS_TOUCH_USE_ALL
+
+#define ESP_PANEL_DRIVERS_TOUCH_COMPILE_UNUSED_DRIVERS          (1)
+
+#if ESP_PANEL_DRIVERS_TOUCH_USE_XPT2046 || ESP_PANEL_DRIVERS_TOUCH_COMPILE_UNUSED_DRIVERS
+#define ESP_PANEL_DRIVERS_TOUCH_XPT2046_Z_THRESHOLD             (400)
+#define ESP_PANEL_DRIVERS_TOUCH_XPT2046_INTERRUPT_MODE          (0)
+#define ESP_PANEL_DRIVERS_TOUCH_XPT2046_VREF_ON_MODE            (0)
+#define ESP_PANEL_DRIVERS_TOUCH_XPT2046_CONVERT_ADC_TO_COORDS   (1)
+#define ESP_PANEL_DRIVERS_TOUCH_XPT2046_ENABLE_LOCKING          (0)
+#endif
+
+//////////////////////////////////////////////// IO Expander Configurations //////////////////////////////////////////////
+#define ESP_PANEL_DRIVERS_EXPANDER_USE_ALL                      (0)
+#if !ESP_PANEL_DRIVERS_EXPANDER_USE_ALL
+    #define ESP_PANEL_DRIVERS_EXPANDER_USE_CH422G               (0)
+    #define ESP_PANEL_DRIVERS_EXPANDER_USE_HT8574               (0)
+    #define ESP_PANEL_DRIVERS_EXPANDER_USE_TCA95XX_8BIT         (0)
+    #define ESP_PANEL_DRIVERS_EXPANDER_USE_TCA95XX_16BIT        (0)
+#endif // ESP_PANEL_DRIVERS_EXPANDER_USE_ALL
+
+///////////////////////////////////////////////// Backlight Configurations ///////////////////////////////////////////////
+#define ESP_PANEL_DRIVERS_BACKLIGHT_USE_ALL                     (1)
+#if !ESP_PANEL_DRIVERS_BACKLIGHT_USE_ALL
+    #define ESP_PANEL_DRIVERS_BACKLIGHT_USE_SWITCH_GPIO         (0)
+    #define ESP_PANEL_DRIVERS_BACKLIGHT_USE_SWITCH_EXPANDER     (0)
+    #define ESP_PANEL_DRIVERS_BACKLIGHT_USE_PWM_LEDC            (0)
+    #define ESP_PANEL_DRIVERS_BACKLIGHT_USE_CUSTOM              (0)
+#endif // ESP_PANEL_DRIVERS_BACKLIGHT_USE_ALL
+
+#define ESP_PANEL_DRIVERS_BACKLIGHT_COMPILE_UNUSED_DRIVERS     (1)
+
+///////////////////////////////////////////////// File Version ///////////////////////////////////////////////////////////
+#define ESP_PANEL_DRIVERS_CONF_FILE_VERSION_MAJOR 1
+#define ESP_PANEL_DRIVERS_CONF_FILE_VERSION_MINOR 1
+#define ESP_PANEL_DRIVERS_CONF_FILE_VERSION_PATCH 0
+
+// *INDENT-ON*

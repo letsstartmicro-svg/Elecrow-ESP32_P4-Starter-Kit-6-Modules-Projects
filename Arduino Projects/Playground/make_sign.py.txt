@@ -1,0 +1,100 @@
+# Renders the "Elecrow Playground" sign and writes it as C data for the sketch.
+from PIL import Image, ImageDraw, ImageFont
+import math, sys
+S = 3                      # supersampling
+W, H = 300, 200            # final size in pixels
+FONT = "/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyrebonum-bold.otf"
+DARK = (74, 44, 23, 255)
+CREAM = (255, 243, 214, 255)
+RED_LINE = (214, 40, 40, 255)
+WOOD = (139, 90, 43, 255)
+WOOD_LIGHT = (176, 122, 66, 255)
+COLS = [(214,40,40), (247,127,0), (252,191,73), (42,157,143), (29,111,184), (123,44,191), (229,72,124)]
+
+img = Image.new("RGBA", (W*S, H*S), (0,0,0,0))
+d = ImageDraw.Draw(img)
+def s(v): return int(round(v*S))
+
+# --- posts (behind everything) with ball tops ---
+cx, acy, R = 150, 235, 190          # arch centre and centre-line radius
+span = math.radians(32)
+post_x = [cx - R*math.sin(span), cx + R*math.sin(span)]
+for px in post_x:
+    d.rectangle([s(px-9), s(52), s(px+9), s(H)], fill=DARK)
+    d.rectangle([s(px-6), s(52), s(px+6), s(H)], fill=WOOD)
+    d.rectangle([s(px-6), s(52), s(px-2), s(H)], fill=WOOD_LIGHT)
+
+# --- arched banner ---
+def arc_band(r_in, r_out, a0, a1, fill):
+    pts = []
+    for i in range(121):
+        a = a0 + (a1-a0)*i/120
+        pts.append((s(cx + r_out*math.sin(a)), s(acy - r_out*math.cos(a))))
+    for i in range(120, -1, -1):
+        a = a0 + (a1-a0)*i/120
+        pts.append((s(cx + r_in*math.sin(a)), s(acy - r_in*math.cos(a))))
+    d.polygon(pts, fill=fill)
+e = math.radians(3)
+arc_band(R-27, R+27, -span-e, span+e, DARK)        # outline
+arc_band(R-23, R+23, -span, span, CREAM)           # banner
+arc_band(R-19, R-17, -span+e, span-e, RED_LINE)    # pinstripes
+arc_band(R+17, R+19, -span+e, span-e, RED_LINE)
+
+# light bulbs along the top edge
+n = 11
+for i in range(n):
+    a = -span + 2*span*i/(n-1)
+    bx, by = cx + (R+27)*math.sin(a), acy - (R+27)*math.cos(a)
+    d.ellipse([s(bx-5), s(by-5), s(bx+5), s(by+5)], fill=DARK)
+    d.ellipse([s(bx-3.5), s(by-3.5), s(bx+3.5), s(by+3.5)], fill=(255,214,10,255))
+
+# --- board ---
+bx0, by0, bx1, by1 = 28, 104, 272, 152
+d.rounded_rectangle([s(bx0-4), s(by0-4), s(bx1+4), s(by1+4)], radius=s(12), fill=DARK)
+d.rounded_rectangle([s(bx0), s(by0), s(bx1), s(by1)], radius=s(9), fill=CREAM)
+d.rounded_rectangle([s(bx0+5), s(by0+5), s(bx1-5), s(by1-5)], radius=s(6), outline=RED_LINE, width=s(2))
+for (x, y) in [(bx0+11, by0+11), (bx1-11, by0+11), (bx0+11, by1-11), (bx1-11, by1-11)]:   # nails
+    d.ellipse([s(x-2.5), s(y-2.5), s(x+2.5), s(y+2.5)], fill=DARK)
+
+# --- lettering along an arc ---
+def letters_on_arc(text, size, ccx, ccy, radius, start_col):
+    font = ImageFont.truetype(FONT, s(size))
+    widths = [font.getlength(ch) for ch in text]
+    track = s(size*0.06)
+    total = sum(widths) + track*(len(text)-1)
+    ang = -(total/2) / s(radius)                 # start angle (radians)
+    for i, ch in enumerate(text):
+        w = widths[i]
+        a = ang + (w/2)/s(radius)
+        col = COLS[(start_col + i) % len(COLS)]
+        tile = Image.new("RGBA", (int(w + s(size)), int(s(size)*1.8)), (0,0,0,0))
+        td = ImageDraw.Draw(tile)
+        bb = font.getbbox("H")                      # centre the capital letters in the tile
+        tx = s(size)/2
+        ty = tile.height/2 - (bb[1] + bb[3])/2
+        td.text((tx + s(1.8), ty + s(1.8)), ch, font=font, fill=(0,0,0,110),
+                stroke_width=s(2.2), stroke_fill=(0,0,0,110))                  # shadow
+        td.text((tx, ty), ch, font=font, fill=col + (255,), stroke_width=s(2.2), stroke_fill=DARK)
+        rot = tile.rotate(-math.degrees(a), resample=Image.BICUBIC, expand=True)
+        px = ccx + radius*math.sin(a)
+        py = ccy - radius*math.cos(a)
+        img.alpha_composite(rot, (int(s(px) - rot.width/2), int(s(py) - rot.height/2)))
+        ang += (w + track)/s(radius)
+
+letters_on_arc("ELECROW", 34, cx, acy, R, 0)
+letters_on_arc("PLAYGROUND", 27, cx, 128 + 520, 520, 3)
+
+# downsample with premultiplied alpha
+small = img.convert("RGBa").resize((W, H), Image.LANCZOS).convert("RGBA")
+small.save(sys.argv[1] if len(sys.argv) > 1 else "sign.png")
+
+# C data (RGBA, 4 bytes per pixel)
+raw = small.tobytes()
+with open(sys.argv[2] if len(sys.argv) > 2 else "sign_img.h", "w") as f:
+    f.write("// sign_img.h - the \"Elecrow Playground\" sign picture (made by make_sign.py)\n")
+    f.write("// RGBA, 4 bytes per pixel. Converted to LVGL's colour format at start-up.\n#pragma once\n#include <stdint.h>\n\n")
+    f.write(f"#define SIGN_W {W}\n#define SIGN_H {H}\n\nstatic const uint8_t SIGN_RGBA[] = {{\n")
+    for i in range(0, len(raw), 24):
+        f.write("  " + ",".join(str(b) for b in raw[i:i+24]) + ",\n")
+    f.write("};\n")
+print("done", len(raw))
